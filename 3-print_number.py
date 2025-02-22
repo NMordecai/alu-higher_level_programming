@@ -1,4 +1,4 @@
-number = 333
+number = "hello"
 try:
     print(f"{number} Battery street")
 except ValueError:
