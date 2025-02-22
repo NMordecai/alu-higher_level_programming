@@ -1,3 +1,5 @@
-number = 98
-print(f"{number} Battery street")
-print()
+number = 333
+try:
+    print(f"{number} Battery street")
+except ValueError:
+    print("ValueError: Unknown format code 'd' for object of type 'str'")
