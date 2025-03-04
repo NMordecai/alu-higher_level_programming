@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Check if PYFILE is set
+if [ -z "$PYFILE" ]; then
+  echo "Error: PYFILE environment variable is not set."
+  exit 1
+fi
+
+# Compile the Python file
+python3 -m compileall "$PYFILE" 2>/dev/null
+
+# Check if compiled file exists
+if [ -f "${PYFILE}c" ]; then
+  echo "Compilation successful: ${PYFILE} -> ${PYFILE}c"
+  exit 0
+elif [ -f "__pycache__/${PYFILE%%.py}.cpython-$(python3 -c 'import sys; print(sys.version_info.major)}{sys.version_info.minor}.pyc" ]; then
+  mv "__pycache__/${PYFILE%%.py}.cpython-$(python3 -c 'import sys; print(sys.version_info.major)}{sys.version_info.minor}.pyc" "${PYFILE}c"
+  rm -rf "__pycache__"
+  echo "Compilation successful: ${PYFILE} -> ${PYFILE}c"
+  exit 0
+else
+  echo "Compilation failed."
+  exit 1
+fi
