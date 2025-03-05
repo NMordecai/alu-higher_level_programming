@@ -1,24 +1,33 @@
 #!/bin/bash
 
-# Check if PYFILE is set
+# Check if PYFILE environment variable is set
 if [ -z "$PYFILE" ]; then
   echo "Error: PYFILE environment variable is not set."
   exit 1
 fi
 
-# Compile the Python file
-python3 -m compileall "$PYFILE" 2>/dev/null
+# Compile the Python script
+python3 -m compileall -q "$PYFILE"
 
-# Check if compiled file exists
+# Check if compilation was successful and rename the output file.
 if [ -f "${PYFILE}c" ]; then
-  echo "Compilation successful: ${PYFILE} -> ${PYFILE}c"
+  echo "Compilation successful: $PYFILE -> ${PYFILE}c"
   exit 0
-elif [ -f "__pycache__/${PYFILE%%.py}.cpython-$(python3 -c 'import sys; print(sys.version_info.major)}{sys.version_info.minor}.pyc" ]; then
-  mv "__pycache__/${PYFILE%%.py}.cpython-$(python3 -c 'import sys; print(sys.version_info.major)}{sys.version_info.minor}.pyc" "${PYFILE}c"
-  rm -rf "__pycache__"
-  echo "Compilation successful: ${PYFILE} -> ${PYFILE}c"
-  exit 0
+elif [ -d "__pycache__" ]; then
+    # Dynamically find the .pyc file in __pycache__
+    PYC_FILE=$(find "__pycache__" -name "${PYFILE%%.py}.*.pyc")
+
+    if [ -n "$PYC_FILE" ]; then
+      mv "$PYC_FILE" "${PYFILE}c"
+      rm -rf "__pycache__"
+      echo "Compilation successful: $PYFILE -> ${PYFILE}c"
+      exit 0
+    else
+      echo "Compilation failed. Compiled file not found in __pycache__."
+      exit 1
+    fi
+
 else
-  echo "Compilation failed."
-  exit 1
+    echo "Compilation failed."
+    exit 1
 fi
